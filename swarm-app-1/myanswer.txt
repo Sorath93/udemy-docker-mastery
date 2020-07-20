@@ -1,0 +1,24 @@
+docker swarm init --advertise-addr <my-ip>
+
+docker-machine create host1
+I need to add more to host1 using the join token
+
+docker swarm init --advertise-addr <my-ip>
+docker network create --driver overlay backend
+docker network create --driver overlay frontend
+
+docker service create --name vote --network frontend --replicas=2 -p 80:80 bretfisher/examplevotingapp_vote
+docker service create --name redis --network frontend redis:3.2
+docker service create --name worker --network frontend bretfisher/examplevotingapp_worker:java
+docker network connect backend worker.1.du4oa1wzb5onw3qq50mv28zwi
+docker service create --name db --network backend -e POSTGRES_HOST_AUTH_METHOD=trust --mount type=volume,source=db-data,target=/var/lib/postgresql/data postgres:9.4
+docker service create --name result --network backend -p 5001:80 bretfisher/examplevotingapp_result
+
+Now how do I access the web app on my browser?
+  - I did docker-machine ls (in my docker host directory, i.e. my home directory)
+   and grabbed the frontend IP. The IP for both host1 and host2 worked.
+   I think they both worked because 1) I put host1 and host2 in one swarm and 2) because I created two replicas of vote.
+   I should try doing this task again on monday completely from scratch - this time making the swarm first (I did it last before)
+   and see what happens if we only have one replica of vote - I think only the host1 IP will work when viewing it.
+I should also make note of what has happened - see if you can make a visual diagram?
+Try and hone some understanding of services, swarm and networks before moving to the next section.
